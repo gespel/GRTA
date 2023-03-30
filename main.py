@@ -1,60 +1,21 @@
-import time
-
 import numpy as np
 import pygame
-import pyaudio
+from grta import GRTA
 
-# Pygame initialisieren
 pygame.init()
 pygame.display.set_caption('Realtime Spectrum Analyzer')
 WINDOW_WIDTH, WINDOW_HEIGHT = 1200, 600
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
-# PyAudio initialisieren
-p = pyaudio.PyAudio()
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 48000
-CHUNK_SIZE = 2048
-
-# Anzahl der Frequenzbänder festlegen
 FREQUENCY_BANDS = 1200
 
-# Minimal- und Maximalfrequenzen festlegen (in Hz)
 MIN_FREQUENCY = 20
 MAX_FREQUENCY = 20000
 
-# Logarithmische Skala der Frequenzen erzeugen
-freqs = np.logspace(np.log10(MIN_FREQUENCY), np.log10(MAX_FREQUENCY), num=FREQUENCY_BANDS + 1)
-
-# Bandbreite jedes Frequenzbands berechnen
-band_widths = np.diff(freqs)
-
-stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
-                frames_per_buffer=CHUNK_SIZE)
-
-
-def calculate_spectrum():
-
-    audio_data = np.frombuffer(stream.read(CHUNK_SIZE), dtype=np.int16)
-
-    fft_data = np.fft.fft(audio_data) / CHUNK_SIZE
-
-    mag_data = np.abs(fft_data[:CHUNK_SIZE // 2]) ** 2
-    data2 = np.abs(fft_data / 1024)
-    freqs_data = np.fft.fftfreq(CHUNK_SIZE, 1 / RATE)[:CHUNK_SIZE // 2]
-
-    spectrum_data = np.zeros(FREQUENCY_BANDS)
-    for i in range(FREQUENCY_BANDS):
-        start_idx = np.searchsorted(freqs_data, freqs[i], 'left')
-        end_idx = np.searchsorted(freqs_data, freqs[i + 1], 'right')
-
-        spectrum_data[i] = np.sum(mag_data[start_idx:end_idx] * band_widths[i])
-    for i in range(FREQUENCY_BANDS):
-        print(str(i * FREQUENCY_BANDS) + ":" + str(spectrum_data[i]))
-    return spectrum_data
 
 color_palette = [(i * 0.5, 0, 255 - 255 / (i + 1)) for i in range(256)]
+
+g = GRTA()
 
 running = True
 while running:
@@ -63,7 +24,7 @@ while running:
             running = False
             break
 
-    spectrum_data = calculate_spectrum()
+    spectrum_data = g.calculate_spectrum()
 
     screen.fill((0, 0, 0))
     font = pygame.font.SysFont(None, 20)
@@ -87,9 +48,5 @@ while running:
     screen.blit(label_x, (WINDOW_WIDTH // 2, WINDOW_HEIGHT - 20))
     screen.blit(label_y, (20, WINDOW_HEIGHT // 2))
     pygame.display.update()
-
-stream.stop_stream()
-stream.close()
-p.terminate()
 
 pygame.quit()
