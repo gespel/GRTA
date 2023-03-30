@@ -35,33 +35,24 @@ stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True,
 
 
 def calculate_spectrum():
-    x = []
-    for j in range(2):
-        audio_data = np.frombuffer(stream.read(CHUNK_SIZE), dtype=np.int16)
 
-        fft_data = np.fft.fft(audio_data) / CHUNK_SIZE
+    audio_data = np.frombuffer(stream.read(CHUNK_SIZE), dtype=np.int16)
 
-        mag_data = np.abs(fft_data[:CHUNK_SIZE // 2]) ** 2
-        data2 = np.abs(fft_data / 1024)
-        freqs_data = np.fft.fftfreq(CHUNK_SIZE, 1 / RATE)[:CHUNK_SIZE // 2]
+    fft_data = np.fft.fft(audio_data) / CHUNK_SIZE
 
-        spectrum_data = np.zeros(FREQUENCY_BANDS)
-        for i in range(FREQUENCY_BANDS):
-            start_idx = np.searchsorted(freqs_data, freqs[i], 'left')
-            end_idx = np.searchsorted(freqs_data, freqs[i + 1], 'right')
+    mag_data = np.abs(fft_data[:CHUNK_SIZE // 2]) ** 2
+    data2 = np.abs(fft_data / 1024)
+    freqs_data = np.fft.fftfreq(CHUNK_SIZE, 1 / RATE)[:CHUNK_SIZE // 2]
 
-            spectrum_data[i] = np.sum(mag_data[start_idx:end_idx] * band_widths[i])
-        x.append(spectrum_data)
-    bins = np.zeros(FREQUENCY_BANDS)
-    for e in x:
-        for v_idx in range(0, len(e)):
-            bins[v_idx] += e[v_idx]
+    spectrum_data = np.zeros(FREQUENCY_BANDS)
+    for i in range(FREQUENCY_BANDS):
+        start_idx = np.searchsorted(freqs_data, freqs[i], 'left')
+        end_idx = np.searchsorted(freqs_data, freqs[i + 1], 'right')
 
-    for v_idx in range(0, len(bins)):
-        bins[v_idx] = bins[v_idx] / 2
-    print(bins[612])
-    return bins
-
+        spectrum_data[i] = np.sum(mag_data[start_idx:end_idx] * band_widths[i])
+    for i in range(FREQUENCY_BANDS):
+        print(str(i * FREQUENCY_BANDS) + ":" + str(spectrum_data[i]))
+    return spectrum_data
 
 color_palette = [(i * 0.5, 0, 255 - 255 / (i + 1)) for i in range(256)]
 
@@ -83,7 +74,7 @@ while running:
     freq_lines = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
     for freq in freq_lines:
         freq_pos = int(np.log10(freq) * WINDOW_WIDTH / np.log10(MAX_FREQUENCY))
-        pygame.draw.line(screen, (255, 255, 255), (freq_pos, 0), (freq_pos, WINDOW_HEIGHT), 1)
+        pygame.draw.line(screen, (100, 100, 100), (freq_pos, 0), (freq_pos, WINDOW_HEIGHT), 1)
         freq_label = font.render(str(freq), True, (255, 255, 255))
         screen.blit(freq_label, (freq_pos + 10, 20))
 
