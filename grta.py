@@ -43,6 +43,5 @@ class GRTA:
             end_idx = np.searchsorted(freqs_data, self.freqs[i + 1], 'right')
 
             spectrum_data[i] = np.sum(mag_data[start_idx:end_idx] * self.band_widths[i])
-        for i in range(self.FREQUENCY_BANDS):
-            print(str(i * self.FREQUENCY_BANDS) + ":" + str(spectrum_data[i]))
+        print(len(spectrum_data))
         return spectrum_data
