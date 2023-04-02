@@ -27,7 +27,7 @@ class GRTA:
         self.stream = self.p.open(format=self.FORMAT, channels=self.CHANNELS, rate=self.RATE, input=True,
                                   frames_per_buffer=self.CHUNK_SIZE)
 
-    def calculate_spectrum(self):
+    def measure_spectrum(self):
 
         audio_data = np.frombuffer(self.stream.read(self.CHUNK_SIZE), dtype=np.int16)
 

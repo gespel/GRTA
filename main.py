@@ -9,7 +9,7 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 FREQUENCY_BANDS = 1200
 
-MIN_FREQUENCY = 20
+MIN_FREQUENCY = 1
 MAX_FREQUENCY = 20000
 
 
@@ -24,7 +24,7 @@ while running:
             running = False
             break
 
-    spectrum_data = g.calculate_spectrum()
+    spectrum_data = g.measure_spectrum()
 
     screen.fill((0, 0, 0))
     font = pygame.font.SysFont(None, 20)
@@ -34,7 +34,7 @@ while running:
 
     freq_lines = [5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
     for freq in freq_lines:
-        freq_pos = int(np.log10(freq) * WINDOW_WIDTH / np.log10(MAX_FREQUENCY))
+        freq_pos = int(np.log10(freq) * WINDOW_WIDTH // np.log10(MAX_FREQUENCY))
         pygame.draw.line(screen, (100, 100, 100), (freq_pos, 0), (freq_pos, WINDOW_HEIGHT), 1)
         freq_label = font.render(str(freq), True, (255, 255, 255))
         screen.blit(freq_label, (freq_pos + 10, 20))
