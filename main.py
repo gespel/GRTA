@@ -16,6 +16,7 @@ MAX_FREQUENCY = 20000
 color_palette = [(i*0.4, 0, 255-i*0.8) for i in range(256)]
 
 g = GRTA()
+print(g.do_measurements(10))
 
 running = True
 while running:

@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import pyaudio
 
@@ -7,7 +9,7 @@ class GRTA:
         self.p = pyaudio.PyAudio()
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
-        self.RATE = 48000
+        self.RATE = 44100
         self.CHUNK_SIZE = 2048
 
         # Anzahl der Frequenzbänder festlegen
@@ -45,3 +47,11 @@ class GRTA:
             spectrum_data[i] = np.sum(mag_data[start_idx:end_idx] * self.band_widths[i])
         print(len(spectrum_data))
         return spectrum_data
+
+    def do_measurements(self, n):
+        out = []
+        for i in range(0, n):
+            time.sleep(0.1)
+            out.append(self.measure_spectrum())
+        return out
+
